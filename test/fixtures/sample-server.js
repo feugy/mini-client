@@ -1,7 +1,7 @@
 const {Server} = require('hapi')
 const Boom = require('boom')
 const Joi = require('joi')
-const {getLogger, validateParams} = require('../../lib/utils')
+const {getLogger, validateParams} = require('mini-service-utils')
 
 /**
  * Start Hapi Http server that comply with mini-service conventions

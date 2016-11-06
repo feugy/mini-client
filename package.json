@@ -19,6 +19,7 @@
   "dependencies": {
     "bunyan": "1.8.4",
     "joi": "9.2.0",
+    "mini-service-utils": "1.0.0",
     "request": "2.78.0",
     "request-promise": "4.1.1"
   },

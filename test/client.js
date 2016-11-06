@@ -127,7 +127,7 @@ describe('mini-client', () => {
 
     declareTests(context)
 
-    it.skip('should not add too much overhead', {timeout: 15e3}, () => {
+    it('should not add too much overhead', {timeout: 15e3}, () => {
 
       const benchmark = {
         client: () => context.client.greeting('Jane'),
