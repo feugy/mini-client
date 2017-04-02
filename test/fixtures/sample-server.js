@@ -10,7 +10,7 @@ const {getLogger, validateParams} = require('mini-service-utils')
  * @param {Object} opts - server options, including
  * @param {Number} [opts.port = 3000] - listening port
  * @param {Object} [opts.logger] - bunyan compatible logger
- * @param {Object} [opts.serviceOpts] - api configuration
+ * @param {Object} [opts.groupOpts] - api configuration
  * @returns {Promise} promise - resolve with the Hapi server as parameter
  */
 module.exports = opts => {
@@ -19,7 +19,7 @@ module.exports = opts => {
     logger: getLogger()
   }, opts)
 
-  const {port, logger, serviceOpts} = options
+  const {port, logger, groupOpts} = options
   logger.debug({port}, 'Configure server')
 
   const server = new Server()
@@ -41,7 +41,7 @@ module.exports = opts => {
           done(validateParams(values, Joi.object({name: Joi.string().required()}), 'greeting', 1))
       }
     },
-    handler: (req, reply) => reply(`Hello ${req.payload.name}${serviceOpts.greetings || ''} !`)
+    handler: (req, reply) => reply(`Hello ${req.payload.name}${groupOpts.greetings || ''} !`)
   })
 
   server.route({
@@ -58,9 +58,9 @@ module.exports = opts => {
       name: 'sample-service',
       version: '1.0.0',
       apis: [
-        {name: 'sample', id: 'ping', params: [], path: '/api/sample/ping'},
-        {name: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
-        {name: 'sample', id: 'failing', params: [], path: '/api/sample/failing'}
+        {group: 'sample', id: 'ping', params: [], path: '/api/sample/ping'},
+        {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
+        {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'}
       ]
     })
   })

@@ -32,6 +32,22 @@ module.exports = (opts = {}) => {
      */
     failing() {
       return Promise.reject(new Error('something went really bad'))
+    },
+
+    /**
+     * API that synchronously fails when executing
+     * @throws always an error
+     */
+    errored() {
+      throw new Error('errored API')
+    },
+
+    /**
+     * API that doesn't return a promise
+     * @returns {Number} a magic number
+     */
+    notCompliant() {
+      return 10
     }
   }
 

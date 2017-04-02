@@ -17,7 +17,7 @@ describe('mini-client', () => {
   after(utils.restoreLogger)
 
   it('should be initialized multiple times', () => {
-    const instance = getClient()
+    const instance = getClient({name: 'multiple', version: '1.0.0', init: () => Promise.resolve({})})
     return instance.init()
       .then(() => instance.init())
   })
@@ -54,13 +54,40 @@ describe('mini-client', () => {
         })
     )
 
+    if (context.client) {
+      // only for local client
+
+      it('should handle not compliant APIs', () =>
+        context.client.notCompliant()
+          .then(res => {
+            assert.fail(res, '', 'unexpected result')
+          }, err => {
+            assert(err instanceof Error)
+            assert(err.message.includes('Error while calling API notCompliant:'))
+            assert(err.message.includes('.then is not a function'))
+          })
+      )
+
+      it('should handle synchronously failing APIs', () =>
+        context.client.errored()
+          .then(res => {
+            assert.fail(res, '', 'unexpected result')
+          }, err => {
+            assert(err instanceof Error)
+            assert(err.message.includes('Error while calling API errored:'))
+            assert(err.message.includes('errored API'))
+          })
+      )
+    }
+
     it('should validate parameter existence', () =>
       context.client.greeting()
         .then(res => {
           assert.fail(res, '', 'unexpected result')
         }, err => {
           assert(err instanceof Error)
-          assert(err.message.includes('required'))
+          assert(err.message.includes('Incorrect parameters for API greeting'))
+          assert(err.message.includes('["name" is required]'))
         })
     )
 
@@ -85,16 +112,30 @@ describe('mini-client', () => {
     )
   }
 
-  describe('a local client', () => {
+  describe('a local client without API group', () => {
     const context = {client: getClient({
-      services: [{
-        name: 'sample',
+      name: 'sample-service',
+      version: '1.0.0',
+      init: require('./fixtures/sample'),
+      greetings: ' nice to meet you'
+    })}
+
+    before(() => context.client.init())
+
+    declareTests(context)
+  })
+
+  describe('a local client with API group', () => {
+    const context = {client: getClient({
+      name: 'sample-service',
+      version: '1.0.0',
+      groups: [{
+        name: 'group1',
         init: require('./fixtures/sample')
       }],
-      serviceOpts: {
-        sample: {greetings: ' nice to meet you'}
-      },
-      version: 'sample-service@1.0.0'
+      groupOpts: {
+        group1: {greetings: ' nice to meet you'}
+      }
     })}
 
     before(() => context.client.init())
@@ -108,7 +149,7 @@ describe('mini-client', () => {
 
     before(() =>
       startServer({
-        serviceOpts: {greetings: ' nice to meet you'}
+        groupOpts: {greetings: ' nice to meet you'}
       })
         .then(serv => {
           server = serv
@@ -179,7 +220,7 @@ describe('mini-client', () => {
           assert(results.client.count > 1000)
           assert.equal(results.direct.errored, 0)
           assert.equal(results.client.errored, 0)
-          assert(percentage >= 80)
+          assert(percentage >= 75)
         })
     })
   })
@@ -259,17 +300,19 @@ describe('mini-client', () => {
       )
   })
 
-  describe('clients with an ordered list of services', () => {
+  describe('local clients with an ordered list of groups', () => {
     const initOrder = []
-    const orderedServices = Array.from({length: 3}).map((v, i) => ({
-      name: `service-${i}`,
+    const ordered = Array.from({length: 3}).map((v, i) => ({
+      name: `group-${i}`,
       init: opts => new Promise((resolve, reject) => {
-        if (opts.fail) return reject(new Error(`service ${i} failed to initialize`))
+        if (opts.fail) return reject(new Error(`group ${i} failed to initialize`))
         initOrder.push(i)
-        opts.logger.info(`from service ${i}`)
+        opts.logger.info(`from group ${i}`)
         return resolve()
       })
     }))
+    const name = 'client'
+    const version = '1.0.0'
 
     beforeEach(done => {
       initOrder.splice(0, initOrder.length)
@@ -277,29 +320,33 @@ describe('mini-client', () => {
     })
 
     it('should keep order when registering locally', () =>
-      getClient({services: orderedServices}).init()
+      getClient({name, version, groups: ordered}).init()
         .then(() => assert.deepEqual(initOrder, [0, 1, 2]))
     )
 
     it('should stop initialisation at first error', () =>
       getClient({
-        services: orderedServices,
-        serviceOpts: {
-          'service-1': {fail: true}
+        name,
+        version,
+        groups: ordered,
+        groupOpts: {
+          'group-1': {fail: true}
         }
       }).init()
         .then(res => {
           assert.fail(res, '', 'unexpected result')
         }, err => {
           assert(err instanceof Error)
-          assert(err.message.includes('service 1 failed to initialize'))
+          assert(err.message.includes('group 1 failed to initialize'))
           assert.deepEqual(initOrder, [0])
         })
     )
 
-    it('should ignore services that doesn\'t expose an object', () =>
+    it('should ignore groups that doesn\'t expose an object', () =>
       getClient({
-        services: [{
+        name,
+        version,
+        groups: [{
           name: 'init-string',
           init: () => Promise.resolve('initialized')
         }, {
@@ -311,13 +358,15 @@ describe('mini-client', () => {
         }, {
           name: 'init-empty',
           init: () => Promise.resolve(null)
-        }].concat(orderedServices)
+        }].concat(ordered)
       }).init()
     )
 
-    it('should enforce service name', () =>
+    it('should enforce group name', () =>
       getClient({
-        services: [{
+        name,
+        version,
+        groups: [{
           init: () => Promise.resolve('initialized')
         }]
       }).init()
@@ -330,9 +379,11 @@ describe('mini-client', () => {
         })
     )
 
-    it('should enforce service init function', () =>
+    it('should enforce group init function', () =>
       getClient({
-        services: [{
+        name,
+        version,
+        groups: [{
           name: 'test'
         }]
       }).init()
@@ -345,9 +396,33 @@ describe('mini-client', () => {
         })
     )
 
-    it('should check that service init function returns a Promise', () =>
+    it('should enforce client name', done => {
+      assert.throws(() => getClient({
+        version,
+        groups: [{
+          name: 'group1',
+          init: () => Promise.resolve('initialized')
+        }]
+      }), /"name" and "version" options/)
+      done()
+    })
+
+    it('should enforce client version', done => {
+      assert.throws(() => getClient({
+        name,
+        groups: [{
+          name: 'group1',
+          init: () => Promise.resolve('initialized')
+        }]
+      }), /"name" and "version" options/)
+      done()
+    })
+
+    it('should check that group init function returns a Promise', () =>
       getClient({
-        services: [{
+        name,
+        version,
+        groups: [{
           name: 'test',
           init: () => ({test: true})
         }]
@@ -360,16 +435,18 @@ describe('mini-client', () => {
           assert(err.message.includes('didn\'t returned a promise'))
         })
     )
-    it('should expose logger to services', () => {
+    it('should expose logger to groups', () => {
       const logs = []
       const logger = bunyan.createLogger({name: 'test'})
       logger.info = msg => logs.push(msg)
       return getClient({
+        name,
+        version,
         logger,
-        services: orderedServices
+        groups: ordered
       }).init()
         .then(() => {
-          assert.deepEqual(logs, ['from service 0', 'from service 1', 'from service 2'])
+          assert.deepEqual(logs, ['from group 0', 'from group 1', 'from group 2'])
         })
     })
   })
