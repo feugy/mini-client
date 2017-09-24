@@ -1,6 +1,6 @@
 {
   "name": "mini-client",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Mini client for mini services: Micro services done simply",
   "author": "feugy <damien.feugas@gmail.com>",
   "license": "MIT",
