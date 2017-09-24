@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#init">init</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-mini-client.html">mini-client</a><ul class='methods'><li data-type='method'><a href="module-mini-client.html#~createClient">createClient</a></li></ul></li><li><a href="module-register.html">register</a><ul class='methods'><li data-type='method'><a href="module-register.html#.registerFromServer">registerFromServer</a></li><li data-type='method'><a href="module-register.html#.registerLocal">registerLocal</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#init">init</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-mini-client.html">mini-client</a><ul class='methods'><li data-type='method'><a href="module-mini-client.html#~createClient">createClient</a></li></ul></li><li><a href="module-register.html">register</a><ul class='methods'><li data-type='method'><a href="module-register.html#.registerFromServer">registerFromServer</a></li><li data-type='method'><a href="module-register.html#.registerLocal">registerLocal</a></li><li data-type='method'><a href="module-register.html#~computeGroup">computeGroup</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -37,7 +37,8 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const request = require('request-promise')
+            <pre class="prettyprint source linenums"><code>const request = require('request-promise-native')
+const crc32 = require('crc32')
 const joi = require('joi')
 const {
   arrayToObj,
@@ -52,6 +53,32 @@ const {
  * Internal API registration functions
  * @module register
  */
+
+/**
+ * Created operation should be regrouped according to their own group
+ *
+ * Registering operations could occur:
+ * - on root context when operation belongs to group named afer the service
+ * - on group subobject when operation belongs to a different group
+ *
+ * @param {Object} context root context in which operations will be created
+ * @param {String} group group name currently processed
+ * @param {Object} opts options describing local/remote service
+ * @param {String} opts.name of current service
+ * @returns {Object} in which operations could be registered as functions
+ */
+const computeGroup = (context, group, opts) => {
+  // use group if it's not the service name
+  if (group !== opts.name) {
+    // creates group if not present yet
+    if (!(group in context)) {
+      context[group] = {}
+    }
+    return context[group]
+  }
+  return context
+}
+
 
 /**
  * @summary Ask a given server for APIs to register into the given context (remote client)
@@ -69,18 +96,25 @@ exports.registerFromServer = (client, url, logger) =>
   }).then(exposed => {
     // update client version
     client.internalVersion = `${exposed.name}@${exposed.version}`
+    const checksum = crc32(JSON.stringify(exposed.apis))
     // add one method to client per exposed api
     exposed.apis.forEach(({group, path, id, params}) => {
       const method = params.length ? 'POST' : 'GET'
-      client[id] = (...args) =>
+      computeGroup(client, group, exposed)[id] = (...args) =>
         request({
           method,
           uri: `${url}${path}`,
           body: arrayToObj(args, params),
-          json: true
-        }).then(res => {
+          json: true,
+          resolveWithFullResponse: true
+        }).then(response => {
+          // checksum validation: fail if not compatible
+          const actualChecksum = response.headers['x-service-crc']
+          if (actualChecksum !== checksum) {
+            throw new Error(`Remote server isn't compatible with current client (expects ${client.internalVersion})`)
+          }
           logger.debug({api: {group, id}}, 'api sucessfully invoked')
-          return res
+          return response.body
         }).catch(err => {
           if (err.statusCode === 400 &amp;&amp; err.error) {
             throw new Error(err.error.message)
@@ -118,19 +152,19 @@ exports.registerLocal = (context, opts, logger) => {
   try {
     const {groups, groupOpts} = extractGroups(opts)
     return [Promise.resolve()].concat(groups)
-      .reduce((previous, {name, init}) =>
+      .reduce((previous, {name: group, init}) =>
         previous
           .then(() => {
-            const initialized = init(Object.assign({logger}, groupOpts[name]))
+            const initialized = init(Object.assign({logger}, groupOpts[group]))
             if (Promise.resolve(initialized) !== initialized) {
-              throw new Error(`${name} init() method didn't returned a promise`)
+              throw new Error(`${group} init() method didn't returned a promise`)
             }
             return initialized
           })
           .then(apis => {
             if (!isApi(apis)) return
             for (const id in apis) {
-              const validate = extractValidate(id, apis, groupOpts[name])
+              const validate = extractValidate(id, apis, groupOpts[group])
               // extrat param names for validation
               const params = getParamNames(apis[id])
               let schema = null
@@ -141,7 +175,7 @@ exports.registerLocal = (context, opts, logger) => {
               }
 
               // enrich context with a dedicated function
-              context[id] = (...args) => {
+              computeGroup(context, group, opts)[id] = (...args) => {
                 // adds input validation
                 if (schema) {
                   const error = validateParams(arrayToObj(args, params), schema, id, params.length)
@@ -159,8 +193,8 @@ exports.registerLocal = (context, opts, logger) => {
                   return Promise.reject(exc)
                 }
               }
+              logger.debug(`API ${id} from ${group} loaded`)
             }
-            logger.debug({apis: Object.keys(apis)}, `APIs from ${name} loaded`)
           })
       )
   } catch (err) {
@@ -179,7 +213,7 @@ exports.registerLocal = (context, opts, logger) => {
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

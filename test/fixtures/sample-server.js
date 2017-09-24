@@ -1,7 +1,8 @@
 const {Server} = require('hapi')
 const Boom = require('boom')
 const Joi = require('joi')
-const {getLogger, validateParams} = require('mini-service-utils')
+const crc32 = require('crc32')
+const {checksumHeader, getLogger, validateParams} = require('mini-service-utils')
 
 /**
  * Start Hapi Http server that comply with mini-service conventions
@@ -19,6 +20,15 @@ module.exports = opts => {
     logger: getLogger()
   }, opts)
 
+  const apis = [
+    {group: 'sample', id: 'ping', params: [], path: '/api/sample/ping'},
+    {group: 'sample-service', id: 'pingOutOfSync', params: [], path: '/api/sample/ping-out-of-sync'},
+    {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
+    {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'}
+  ]
+
+  const checksum = crc32(JSON.stringify(apis))
+
   const {port, logger, groupOpts} = options
   logger.debug({port}, 'Configure server')
 
@@ -29,7 +39,14 @@ module.exports = opts => {
     method: 'GET',
     path: '/api/sample/ping',
     config: {validate: {}},
-    handler: (req, reply) => reply({time: new Date()})
+    handler: (req, reply) => reply({time: new Date()}).header(checksumHeader, checksum)
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/api/sample/ping-out-of-sync',
+    config: {validate: {}},
+    handler: (req, reply) => reply({time: new Date()}).header(checksumHeader, `w${checksum}`)
   })
 
   server.route({
@@ -41,7 +58,9 @@ module.exports = opts => {
           done(validateParams(values, Joi.object({name: Joi.string().required()}), 'greeting', 1))
       }
     },
-    handler: (req, reply) => reply(`Hello ${req.payload.name}${groupOpts.greetings || ''} !`)
+    handler: (req, reply) =>
+      reply(`Hello ${req.payload.name}${groupOpts.greetings || ''} !`)
+        .header(checksumHeader, checksum)
   })
 
   server.route({
@@ -57,11 +76,7 @@ module.exports = opts => {
     handler: (req, reply) => reply({
       name: 'sample-service',
       version: '1.0.0',
-      apis: [
-        {group: 'sample', id: 'ping', params: [], path: '/api/sample/ping'},
-        {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
-        {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'}
-      ]
+      apis
     })
   })
 

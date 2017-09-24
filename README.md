@@ -83,19 +83,80 @@ If the distant service denies the operation because of a missing or errored para
 the returned promise will be rejected with the appropriate error message.
 
 
+## Checksum compatibility
+
+When Mini-client is running in remote mode, it caches remote exposed API at first call.
+But what would happened if a new version of remote server is redeployed ?
+
+If the list of newer exposed API equals the one used when Mini-client was started, everything will be fine.
+But if the two lists are different, then there's a chance that Mini-client will invoke URLs that don't exist any more.
+
+To detect such changes, the CRC-32 checksum of the exposed Api list is sent by remote server in the `X-Service-CRC` response header.
+On each call, Mini-client will compare that checksum with the one valid when it initialized.
+
+If both value differs, then the call will fail on this error:
+> Remote server isn't compatible with current client (expects service-name@x.y.z)
+
+When Mini-client is running on local mode, such situation can never happen.
+
+
 ## License
 
 Copyright [Damien Simonin Feugas][feugy] and other contributors, licensed under [MIT](./LICENSE).
 
 
+## 2.x to 3.x changes
+
+Groups are now used as sub-objects of mini-client.
+
+Given a service exposing:
+- api `ping` without group *(or if group has same name as overall service)*
+- group `a` with apis `ping` & `pong`
+- group `b` with api `ping`
+
+the final Mini-client will be:
+```javascript
+client = {
+  ping(),
+  a: {
+    ping(),
+    pong()
+  },
+  b: {
+    ping()
+  }
+}
+```
+
+
+## 1.x to 2.x changes
+
+Local services, as remote services, **must** have `name` and `version` options defined
+
+When defining services, the `name` property was renamed to `group`:
+```javascript
+module.exports = [{
+  group: 'calc', // was name previously
+  init: () => Promise.resolve({
+    add: (a, b) => ...,
+    subtract: (a, b) => ...
+  })
+```
+
+
 ## Changelog
+
+### 3.0.0
+- [*Breaking change*] Groups are now used as sub-objects of client.
+- Use CRC32 checksum to validate that remote server is compatible
+- Dependencies update
 
 ### 2.0.0
 - Introduce new terminology, with service descriptor and API groups
 - Allow to declare API without groups
 - Allow to declare API validation in group options
-- Force name+version on local client
-- When parsing exposed APIs, expect 'group' property instead of 'name'
+- [*Breaking change*] Force name+version on local client
+- [*Breaking change*] When parsing exposed APIs, expect 'group' property instead of 'name'
 - Better documentation
 - More understandable error messages
 

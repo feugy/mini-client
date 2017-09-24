@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#init">init</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-mini-client.html">mini-client</a><ul class='methods'><li data-type='method'><a href="module-mini-client.html#~createClient">createClient</a></li></ul></li><li><a href="module-register.html">register</a><ul class='methods'><li data-type='method'><a href="module-register.html#.registerFromServer">registerFromServer</a></li><li data-type='method'><a href="module-register.html#.registerLocal">registerLocal</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#init">init</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-mini-client.html">mini-client</a><ul class='methods'><li data-type='method'><a href="module-mini-client.html#~createClient">createClient</a></li></ul></li><li><a href="module-register.html">register</a><ul class='methods'><li data-type='method'><a href="module-register.html#.registerFromServer">registerFromServer</a></li><li data-type='method'><a href="module-register.html#.registerLocal">registerLocal</a></li><li data-type='method'><a href="module-register.html#~computeGroup">computeGroup</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -63,7 +63,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="register.js.html">register.js</a>, <a href="register.js.html#line12">line 12</a>
+        <a href="register.js.html">register.js</a>, <a href="register.js.html#line13">line 13</a>
     </li></ul></dd>
     
 
@@ -153,7 +153,7 @@
     <h4 class="name" id=".registerFromServer"><span class="type-signature">(static) </span>registerFromServer<span class="signature">(client, url, logger)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
-    <p class="summary">Ask a given server for APIs to register into the given context (remote client)</p>
+    <p class="summary"><p>Ask a given server for APIs to register into the given context (remote client)</p></p>
     
 
 
@@ -164,7 +164,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="register.js.html">register.js</a>, <a href="register.js.html#line25">line 25</a>
+        <a href="register.js.html">register.js</a>, <a href="register.js.html#line52">line 52</a>
     </li></ul></dd>
     
 
@@ -352,7 +352,7 @@
     <h4 class="name" id=".registerLocal"><span class="type-signature">(static) </span>registerLocal<span class="signature">(context, opts, logger)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
 
     
-    <p class="summary">Register given APIs using into the given context (local client)</p>
+    <p class="summary"><p>Register given APIs using into the given context (local client)</p></p>
     
 
 
@@ -363,7 +363,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="register.js.html">register.js</a>, <a href="register.js.html#line78">line 78</a>
+        <a href="register.js.html">register.js</a>, <a href="register.js.html#line112">line 112</a>
     </li></ul></dd>
     
 
@@ -818,6 +818,268 @@ a Promise resolved with exposed APIs (an object with functions that returns prom
 
 
         
+            
+
+    
+
+    <h4 class="name" id="~computeGroup"><span class="type-signature">(inner) </span>computeGroup<span class="signature">(context, group, opts)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+
+    
+    <p class="summary"><p>Created operation should be regrouped according to their own group</p>
+<p>Registering operations could occur:</p>
+<ul>
+<li>on root context when operation belongs to group named afer the service</li>
+<li>on group subobject when operation belongs to a different group</li>
+</ul>.</p>
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="register.js.html">register.js</a>, <a href="register.js.html#line31">line 31</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Created operation should be regrouped according to their own group</p>
+<p>Registering operations could occur:</p>
+<ul>
+<li>on root context when operation belongs to group named afer the service</li>
+<li>on group subobject when operation belongs to a different group</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>context</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>root context in which operations will be created</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>group</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>group name currently processed</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>opts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>options describing local/remote service</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>of current service</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>in which operations could be registered as functions</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
     
 
     
@@ -835,7 +1097,7 @@ a Promise resolved with exposed APIs (an object with functions that returns prom
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>
