@@ -82,6 +82,7 @@ When invoking an exposed API, Mini-client can report parameters validation error
 If the distant service denies the operation because of a missing or errored parameter,
 the returned promise will be rejected with the appropriate error message.
 
+
 ## Checksum compatibility
 
 When Mini-client is running in remote mode, it caches remote exposed API at first call.
@@ -98,14 +99,55 @@ If both value differs, then the call will fail on this error:
 
 When Mini-client is running on local mode, such situation can never happen.
 
+
 ## License
 
 Copyright [Damien Simonin Feugas][feugy] and other contributors, licensed under [MIT](./LICENSE).
 
 
+## 2.x to 3.x changes
+
+Groups are now used as sub-objects of mini-client.
+
+Given a service exposing:
+- api `ping` without group *(or if group has same name as overall service)*
+- group `a` with apis `ping` & `pong`
+- group `b` with api `ping`
+
+the final Mini-client will be:
+```javascript
+client = {
+  ping(),
+  a: {
+    ping(),
+    pong()
+  },
+  b: {
+    ping()
+  }
+}
+```
+
+
+## 1.x to 2.x changes
+
+Local services, as remote services, **must** have `name` and `version` options defined
+
+When defining services, the `name` property was renamed to `group`:
+```javascript
+module.exports = [{
+  group: 'calc', // was name previously
+  init: () => Promise.resolve({
+    add: (a, b) => ...,
+    subtract: (a, b) => ...
+  })
+```
+
+
 ## Changelog
 
-### 2.1.0
+### 3.0.0
+- [*Breaking change*] Groups are now used as sub-objects of client.
 - Use CRC32 checksum to validate that remote server is compatible
 - Dependencies update
 

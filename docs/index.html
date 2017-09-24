@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#init">init</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-mini-client.html">mini-client</a><ul class='methods'><li data-type='method'><a href="module-mini-client.html#~createClient">createClient</a></li></ul></li><li><a href="module-register.html">register</a><ul class='methods'><li data-type='method'><a href="module-register.html#.registerFromServer">registerFromServer</a></li><li data-type='method'><a href="module-register.html#.registerLocal">registerLocal</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#init">init</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-mini-client.html">mini-client</a><ul class='methods'><li data-type='method'><a href="module-mini-client.html#~createClient">createClient</a></li></ul></li><li><a href="module-register.html">register</a><ul class='methods'><li data-type='method'><a href="module-register.html#.registerFromServer">registerFromServer</a></li><li data-type='method'><a href="module-register.html#.registerLocal">registerLocal</a></li><li data-type='method'><a href="module-register.html#~computeGroup">computeGroup</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -111,7 +111,32 @@ On each call, Mini-client will compare that checksum with the one valid when it 
 </blockquote>
 <p>When Mini-client is running on local mode, such situation can never happen.</p>
 <h2>License</h2><p>Copyright <a href="https://github.com/feugy">Damien Simonin Feugas</a> and other contributors, licensed under <a href="./LICENSE">MIT</a>.</p>
-<h2>Changelog</h2><h3>2.1.0</h3><ul>
+<h2>2.x to 3.x changes</h2><p>Groups are now used as sub-objects of mini-client.</p>
+<p>Given a service exposing:</p>
+<ul>
+<li>api <code>ping</code> without group <em>(or if group has same name as overall service)</em></li>
+<li>group <code>a</code> with apis <code>ping</code> &amp; <code>pong</code></li>
+<li>group <code>b</code> with api <code>ping</code></li>
+</ul>
+<p>the final Mini-client will be:</p>
+<pre class="prettyprint source lang-javascript"><code>client = {
+  ping(),
+  a: {
+    ping(),
+    pong()
+  },
+  b: {
+    ping()
+  }
+}</code></pre><h2>1.x to 2.x changes</h2><p>Local services, as remote services, <strong>must</strong> have <code>name</code> and <code>version</code> options defined</p>
+<p>When defining services, the <code>name</code> property was renamed to <code>group</code>:</p>
+<pre class="prettyprint source lang-javascript"><code>module.exports = [{
+  group: 'calc', // was name previously
+  init: () => Promise.resolve({
+    add: (a, b) => ...,
+    subtract: (a, b) => ...
+  })</code></pre><h2>Changelog</h2><h3>3.0.0</h3><ul>
+<li>[<em>Breaking change</em>] Groups are now used as sub-objects of client.</li>
 <li>Use CRC32 checksum to validate that remote server is compatible</li>
 <li>Dependencies update</li>
 </ul>
