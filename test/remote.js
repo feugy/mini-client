@@ -39,7 +39,7 @@ describe('remote client', () => {
   declareTests(it, context)
 
   it('should error if remote server has different checksum', () =>
-    context.client.sample.pingOutOfSync()
+    context.client.pingOutOfSync()
       .then(res => {
         assert.fail(res, '', 'unexpected result')
       }, err => {

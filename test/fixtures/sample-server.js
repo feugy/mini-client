@@ -22,7 +22,7 @@ module.exports = opts => {
 
   const apis = [
     {group: 'sample', id: 'ping', params: [], path: '/api/sample/ping'},
-    {group: 'sample', id: 'pingOutOfSync', params: [], path: '/api/sample/ping-out-of-sync'},
+    {group: 'sample-service', id: 'pingOutOfSync', params: [], path: '/api/sample/ping-out-of-sync'},
     {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
     {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'}
   ]

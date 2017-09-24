@@ -25,6 +25,11 @@ describe('remote client without server', () => {
     Promise.resolve(remote)
   )
 
+  it('should groups not be detected as a Promise', () =>
+    // This will check the existence of then method on the Proxy
+    Promise.resolve(remote.unknown)
+  )
+
   it('should handle communication error', () =>
     remote.sample.ping() // no server available
       .then(res => {
@@ -112,6 +117,21 @@ describe('remote client without server', () => {
             server.stop()
             assert(err instanceof Error)
             assert(err.message.includes('sample.unknown is not a function'))
+          })
+      )
+  )
+
+  it('should process operation not in groups', () =>
+    startServer()
+      .then(server =>
+        remote.pingOutOfSync() // not exposed by server
+          .then(res => {
+            server.stop()
+            assert.fail(res, '', 'unexpected result')
+          }, err => {
+            server.stop()
+            assert(err instanceof Error)
+            assert(err.message.includes('isn\'t compatible with current client (expects sample-service@1.0.0)'))
           })
       )
   )
