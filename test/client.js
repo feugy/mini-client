@@ -2,7 +2,7 @@ const Lab = require('lab')
 const assert = require('power-assert')
 const moment = require('moment')
 const bunyan = require('bunyan')
-const request = require('request-promise')
+const request = require('request-promise-native')
 const getClient = require('../')
 const utils = require('./test-utils')
 const startServer = require('./fixtures/sample-server')
@@ -54,32 +54,6 @@ describe('mini-client', () => {
         })
     )
 
-    if (context.client) {
-      // only for local client
-
-      it('should handle not compliant APIs', () =>
-        context.client.notCompliant()
-          .then(res => {
-            assert.fail(res, '', 'unexpected result')
-          }, err => {
-            assert(err instanceof Error)
-            assert(err.message.includes('Error while calling API notCompliant:'))
-            assert(err.message.includes('.then is not a function'))
-          })
-      )
-
-      it('should handle synchronously failing APIs', () =>
-        context.client.errored()
-          .then(res => {
-            assert.fail(res, '', 'unexpected result')
-          }, err => {
-            assert(err instanceof Error)
-            assert(err.message.includes('Error while calling API errored:'))
-            assert(err.message.includes('errored API'))
-          })
-      )
-    }
-
     it('should validate parameter existence', () =>
       context.client.greeting()
         .then(res => {
@@ -112,6 +86,31 @@ describe('mini-client', () => {
     )
   }
 
+  // Test when client is local
+  const declareLocaleTests = context => {
+    it('should handle not compliant APIs', () =>
+      context.client.notCompliant()
+        .then(res => {
+          assert.fail(res, '', 'unexpected result')
+        }, err => {
+          assert(err instanceof Error)
+          assert(err.message.includes('Error while calling API notCompliant:'))
+          assert(err.message.includes('.then is not a function'))
+        })
+    )
+
+    it('should handle synchronously failing APIs', () =>
+      context.client.errored()
+        .then(res => {
+          assert.fail(res, '', 'unexpected result')
+        }, err => {
+          assert(err instanceof Error)
+          assert(err.message.includes('Error while calling API errored:'))
+          assert(err.message.includes('errored API'))
+        })
+    )
+  }
+
   describe('a local client without API group', () => {
     const context = {client: getClient({
       name: 'sample-service',
@@ -123,6 +122,8 @@ describe('mini-client', () => {
     before(() => context.client.init())
 
     declareTests(context)
+
+    declareLocaleTests(context)
   })
 
   describe('a local client with API group', () => {
@@ -141,6 +142,8 @@ describe('mini-client', () => {
     before(() => context.client.init())
 
     declareTests(context)
+
+    declareLocaleTests(context)
   })
 
   describe('a remote client', () => {
@@ -167,6 +170,16 @@ describe('mini-client', () => {
     })
 
     declareTests(context)
+
+    it('should error if remote server has different checksum', () =>
+      context.client.pingOutOfSync()
+        .then(res => {
+          assert.fail(res, '', 'unexpected result')
+        }, err => {
+          assert(err instanceof Error)
+          assert(err.message.includes('isn\'t compatible with current client (expects sample-service@1.0.0)'))
+        })
+    )
 
     it('should not add too much overhead', {timeout: 15e3}, () => {
 
@@ -288,16 +301,16 @@ describe('mini-client', () => {
       startServer()
         .then(server =>
           remote.unknown() // not exposed by server
-          .then(res => {
-            server.stop()
-            assert.fail(res, '', 'unexpected result')
-          }, err => {
-            server.stop()
-            assert(err instanceof Error)
-            assert(err.message.includes('unknown is not a function'))
-          })
+            .then(res => {
+              server.stop()
+              assert.fail(res, '', 'unexpected result')
+            }, err => {
+              server.stop()
+              assert(err instanceof Error)
+              assert(err.message.includes('unknown is not a function'))
+            })
         )
-      )
+    )
   })
 
   describe('local clients with an ordered list of groups', () => {
