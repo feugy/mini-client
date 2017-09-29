@@ -70,6 +70,13 @@ exports.declareTests = (it, context, withGroups = true) => {
         assert(err.message.includes('must contain at most'))
       })
   )
+
+  it('should handle undefined result', () =>
+    invoke(context, 'getUndefined', withGroups)()
+      .then(res => {
+        assert(res === undefined)
+      })
+  )
 }
 
 // Test when client is local

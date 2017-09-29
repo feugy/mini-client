@@ -57,7 +57,7 @@ rules:
   # Variables
   no-catch-shadow: error
   no-shadow: error
-  no-undefined: error
+  no-undefined: off
 
   # Node.js and CommonJS
   callback-return: error

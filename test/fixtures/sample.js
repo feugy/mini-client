@@ -48,6 +48,14 @@ module.exports = (opts = {}) => {
      */
     notCompliant() {
       return 10
+    },
+
+    /**
+     * API that returns undefined
+     * @returns {Promise<undefined>} promise resolved with nothing
+     */
+    getUndefined() {
+      return Promise.resolve(undefined)
     }
   }
 

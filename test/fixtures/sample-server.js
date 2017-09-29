@@ -24,7 +24,8 @@ module.exports = opts => {
     {group: 'sample', id: 'ping', params: [], path: '/api/sample/ping'},
     {group: 'sample-service', id: 'pingOutOfSync', params: [], path: '/api/sample/ping-out-of-sync'},
     {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
-    {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'}
+    {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'},
+    {group: 'sample', id: 'getUndefined', params: [], path: '/api/sample/get-undefined'}
   ]
 
   const checksum = crc32(JSON.stringify(apis))
@@ -68,6 +69,12 @@ module.exports = opts => {
     path: '/api/sample/failing',
     config: {validate: {}},
     handler: (req, reply) => reply(Boom.create(599, 'something went really bad'))
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/api/sample/get-undefined',
+    handler: (req, reply) => reply(undefined).header(checksumHeader, checksum)
   })
 
   server.route({
