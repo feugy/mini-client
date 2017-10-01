@@ -16,7 +16,7 @@ describe('local client without API group', () => {
 
   before(() =>
     utils.shutdownLogger()
-      .then(() =>  context.client.init())
+      .then(() => context.client.init())
   )
 
   after(utils.restoreLogger)

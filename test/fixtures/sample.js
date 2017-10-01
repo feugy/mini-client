@@ -6,14 +6,13 @@ const Joi = require('joi')
  * @returns {Promise} promise - resolve with an object containing exposed APIs
  */
 module.exports = (opts = {}) => {
-
   const apis = {
     /**
      * Respond to ping
      * @returns {Promise} promise - resolved with an object containing:
      * @returns {Date} promise.time - ping current time
      */
-    ping() {
+    ping () {
       return Promise.resolve({time: new Date()})
     },
 
@@ -22,7 +21,7 @@ module.exports = (opts = {}) => {
      * @param {String} name - person to greet
      * @returns {Promise} promise - resolved with a greeting string message
      */
-    greeting(name) {
+    greeting (name) {
       return Promise.resolve(`Hello ${name}${opts.greetings || ''} !`)
     },
 
@@ -30,7 +29,7 @@ module.exports = (opts = {}) => {
      * Failing API to test rejection handling
      * @returns {Promise} promise - always rejected
      */
-    failing() {
+    failing () {
       return Promise.reject(new Error('something went really bad'))
     },
 
@@ -38,7 +37,7 @@ module.exports = (opts = {}) => {
      * API that synchronously fails when executing
      * @throws always an error
      */
-    errored() {
+    errored () {
       throw new Error('errored API')
     },
 
@@ -46,7 +45,7 @@ module.exports = (opts = {}) => {
      * API that doesn't return a promise
      * @returns {Number} a magic number
      */
-    notCompliant() {
+    notCompliant () {
       return 10
     },
 
@@ -54,7 +53,7 @@ module.exports = (opts = {}) => {
      * API that returns undefined
      * @returns {Promise<undefined>} promise resolved with nothing
      */
-    getUndefined() {
+    getUndefined () {
       return Promise.resolve(undefined)
     }
   }

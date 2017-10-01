@@ -124,10 +124,10 @@ describe('remote client without server', () => {
   it('should process operation not in groups', () =>
     startServer()
       .then(server =>
-        remote.pingOutOfSync() // not exposed by server
+        remote.noGroup()
           .then(res => {
             server.stop()
-            assert.fail(res, '', 'unexpected result')
+            assert(moment(res).isValid())
           }, err => {
             server.stop()
             assert(err instanceof Error)

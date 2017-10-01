@@ -7,7 +7,6 @@ const lab = exports.lab = Lab.script()
 const {describe, it, before, after} = lab
 
 describe('mini-client', () => {
-
   it('should be initialized multiple times', () => {
     const instance = getClient({name: 'multiple', version: '1.0.0', init: () => Promise.resolve({})})
     return instance.init()
@@ -27,7 +26,6 @@ describe('local client with API group', () => {
       sample: {greetings: ' nice to meet you'}
     }
   })}
-
 
   before(() =>
     utils.shutdownLogger()

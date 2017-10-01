@@ -1,23 +1,24 @@
 const Lab = require('lab')
 const assert = require('power-assert')
 const request = require('request-promise-native')
+const moment = require('moment')
 const getClient = require('../')
 const utils = require('./test-utils')
 const {declareTests} = require('./test-suites')
 const startServer = require('./fixtures/sample-server')
+const startModifiedServer = require('./fixtures/modified-server')
 
 const lab = exports.lab = Lab.script()
 const {describe, it, before, after} = lab
 
 describe('remote client', () => {
   const context = {client: null}
+  const groupOpts = {greetings: ' nice to meet you'}
   let server
 
   before(() =>
     utils.shutdownLogger()
-      .then(() => startServer({
-        groupOpts: {greetings: ' nice to meet you'}
-      }))
+      .then(() => startServer({groupOpts}))
       .then(serv => {
         server = serv
         context.client = getClient({
@@ -38,18 +39,56 @@ describe('remote client', () => {
 
   declareTests(it, context)
 
-  it('should error if remote server has different checksum', () =>
-    context.client.pingOutOfSync()
-      .then(res => {
-        assert.fail(res, '', 'unexpected result')
-      }, err => {
-        assert(err instanceof Error)
-        assert(err.message.includes('isn\'t compatible with current client (expects sample-service@1.0.0)'))
-      })
-  )
+  describe('given a remote server change', () => {
+    before(() =>
+      server.stop()
+        .then(() => startModifiedServer())
+        .then(serv => {
+          server = serv
+        })
+    )
+
+    after(() =>
+      server.stop()
+        .then(() => startServer({groupOpts}))
+        .then(serv => {
+          server = serv
+        })
+    )
+
+    it('should still invoke modified API with same signature', () =>
+      context.client.sample.greeting('Jane')
+        .then(res => {
+          assert(res === 'Hello dear Jane !')
+        })
+    )
+
+    it('should still invoke unmodified APIs', () =>
+      context.client.sample.getUndefined()
+        .then(res => {
+          assert(res === undefined)
+        })
+    )
+
+    it('should invoke new API', () =>
+      context.client.modified.ping()
+        .then(res => {
+          assert(moment(res.time).isValid())
+        })
+    )
+
+    it('should fail on deleted APIs', () =>
+      context.client.sample.ping()
+        .then(res => {
+          assert.fail(res, '', 'unexpected result')
+        }, err => {
+          assert(err instanceof Error)
+          assert(err.message.includes('isn\'t compatible with current client (expects sample-service@1.0.0)'))
+        })
+    )
+  })
 
   it('should not add too much overhead', {timeout: 15e3}, () => {
-
     const benchmark = {
       client: () => context.client.sample.greeting('Jane'),
       direct: () => request({

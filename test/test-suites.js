@@ -9,7 +9,6 @@ const invoke = (context, operation, withGroups = true) => {
 }
 
 exports.declareTests = (it, context, withGroups = true) => {
-
   it('should respond to ping', () =>
     invoke(context, 'ping', withGroups)()
       .then(result => {

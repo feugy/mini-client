@@ -1,5 +1,4 @@
 const {Server} = require('hapi')
-const Boom = require('boom')
 const Joi = require('joi')
 const crc32 = require('crc32')
 const {checksumHeader, getLogger, validateParams} = require('mini-service-utils')
@@ -21,16 +20,14 @@ module.exports = opts => {
   }, opts)
 
   const apis = [
-    {group: 'sample', id: 'ping', params: [], path: '/api/sample/ping'},
-    {group: 'sample-service', id: 'noGroup', params: [], path: '/api/sample-service/no-group'},
+    {group: 'modified', id: 'ping', params: [], path: '/api/modified/ping'},
     {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
-    {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'},
     {group: 'sample', id: 'getUndefined', params: [], path: '/api/sample/get-undefined'}
   ]
 
   const checksum = crc32(JSON.stringify(apis))
 
-  const {port, logger, groupOpts} = options
+  const {port, logger} = options
   logger.debug({port}, 'Configure server')
 
   const server = new Server()
@@ -38,14 +35,7 @@ module.exports = opts => {
 
   server.route({
     method: 'GET',
-    path: '/api/sample/ping',
-    config: {validate: {}},
-    handler: (req, reply) => reply({time: new Date()}).header(checksumHeader, checksum)
-  })
-
-  server.route({
-    method: 'GET',
-    path: '/api/sample-service/no-group',
+    path: '/api/modified/ping',
     config: {validate: {}},
     handler: (req, reply) => reply({time: new Date()}).header(checksumHeader, checksum)
   })
@@ -60,15 +50,8 @@ module.exports = opts => {
       }
     },
     handler: (req, reply) =>
-      reply(`Hello ${req.payload.name}${groupOpts.greetings || ''} !`)
+      reply(`Hello dear ${req.payload.name} !`)
         .header(checksumHeader, checksum)
-  })
-
-  server.route({
-    method: 'GET',
-    path: '/api/sample/failing',
-    config: {validate: {}},
-    handler: (req, reply) => reply(Boom.create(599, 'something went really bad'))
   })
 
   server.route({
@@ -82,7 +65,7 @@ module.exports = opts => {
     path: '/api/exposed',
     handler: (req, reply) => reply({
       name: 'sample-service',
-      version: '1.0.0',
+      version: '2.0.0',
       apis
     })
   })
