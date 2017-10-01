@@ -149,6 +149,7 @@ module.exports = [{
 ### 3.1.0
 - Automatically reloads exposed APIs when remote server has changed, and mark previous APIs as deprecated
 - Use [standard.js](https://standardjs.com/) lint configuration
+- Don't fail if an API resolves or returns `undefined` value.
 
 ### 3.0.0
 - [*Breaking change*] Groups are now used as sub-objects of client.
