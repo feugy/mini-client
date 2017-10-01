@@ -83,19 +83,22 @@ If the distant service denies the operation because of a missing or errored para
 the returned promise will be rejected with the appropriate error message.
 
 
-## Checksum compatibility
+## Checksum compatibility and automatic reloads
 
 When Mini-client is running in remote mode, it caches remote exposed API at first call.
 But what would happened if a new version of remote server is redeployed ?
 
 If the list of newer exposed API equals the one used when Mini-client was started, everything will be fine.
-But if the two lists are different, then there's a chance that Mini-client will invoke URLs that don't exist any more.
+But if the two lists are different, then there's a chance that Mini-client will invoke URLs that don't exist any more, or requires different parameters.
 
 To detect such changes, the CRC-32 checksum of the exposed Api list is sent by remote server in the `X-Service-CRC` response header.
 On each call, Mini-client will compare that checksum with the one valid when it initialized.
 
-If both value differs, then the call will fail on this error:
-> Remote server isn't compatible with current client (expects service-name@x.y.z)
+If both value differs, then Mini-Client will:
+- mark all existing functions as deprecated (they will reject further call with appropriate error)
+  > Remote server isn't compatible with current client (expects service-name@x.y.z)
+- fetch new list of exposed APIs on remote server, and creates/updates function
+- invoke the current function to process with call (will succeed if supported)
 
 When Mini-client is running on local mode, such situation can never happen.
 
