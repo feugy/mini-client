@@ -9,7 +9,6 @@ const invoke = (context, operation, withGroups = true) => {
 }
 
 exports.declareTests = (it, context, withGroups = true) => {
-
   it('should respond to ping', () =>
     invoke(context, 'ping', withGroups)()
       .then(result => {
@@ -68,6 +67,13 @@ exports.declareTests = (it, context, withGroups = true) => {
       }, err => {
         assert(err instanceof Error)
         assert(err.message.includes('must contain at most'))
+      })
+  )
+
+  it('should handle undefined result', () =>
+    invoke(context, 'getUndefined', withGroups)()
+      .then(res => {
+        assert(res === undefined)
       })
   )
 }

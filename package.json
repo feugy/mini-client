@@ -1,6 +1,6 @@
 {
   "name": "mini-client",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Mini client for mini services: Micro services done simply",
   "author": "feugy <damien.feugas@gmail.com>",
   "license": "MIT",
@@ -12,7 +12,7 @@
   "main": "./lib/client.js",
   "scripts": {
     "doc": "jsdoc -c jsdoc.json",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "nsp": "nsp check",
     "prepush": "npm run nsp & npm test",
     "submit-coverage": "cat coverage/lcov.info | coveralls -v",
@@ -33,6 +33,11 @@
     "coveralls": "~2.13.1",
     "docdash": "~0.4.0",
     "eslint": "~4.7.2",
+    "eslint-config-standard": "~10.2.1",
+    "eslint-plugin-import": "~2.7.0",
+    "eslint-plugin-node": "~5.2.0",
+    "eslint-plugin-promise": "~3.5.0",
+    "eslint-plugin-standard": "~3.0.1",
     "hapi": "~16.6.0",
     "husky": "~0.14.3",
     "jsdoc": "~3.5.5",

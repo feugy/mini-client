@@ -8,7 +8,6 @@ const lab = exports.lab = Lab.script()
 const {describe, it, before, beforeEach, after} = lab
 
 describe('local clients with an ordered list of groups', () => {
-
   before(utils.shutdownLogger)
 
   after(utils.restoreLogger)
