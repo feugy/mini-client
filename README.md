@@ -149,6 +149,11 @@ module.exports = [{
 
 ## Changelog
 
+### 3.2.0
+- Support synchronous `init()` and API functions
+- API call fails with proper error it no checksum found
+- Dependencies update
+
 ### 3.1.0
 - Automatically reloads exposed APIs when remote server has changed, and mark previous APIs as deprecated
 - Use [standard.js](https://standardjs.com/) lint configuration

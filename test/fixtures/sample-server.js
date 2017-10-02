@@ -25,7 +25,8 @@ module.exports = opts => {
     {group: 'sample-service', id: 'noGroup', params: [], path: '/api/sample-service/no-group'},
     {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
     {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'},
-    {group: 'sample', id: 'getUndefined', params: [], path: '/api/sample/get-undefined'}
+    {group: 'sample', id: 'getUndefined', params: [], path: '/api/sample/get-undefined'},
+    {group: 'sample', id: 'noChecksum', params: [], path: '/api/sample/no-checksum'}
   ]
 
   const checksum = crc32(JSON.stringify(apis))
@@ -75,6 +76,13 @@ module.exports = opts => {
     method: 'GET',
     path: '/api/sample/get-undefined',
     handler: (req, reply) => reply(undefined).header(checksumHeader, checksum)
+  })
+
+  server.route({
+    method: 'GET',
+    path: '/api/sample/no-checksum',
+    config: {validate: {}},
+    handler: (req, reply) => reply()
   })
 
   server.route({

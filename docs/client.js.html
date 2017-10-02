@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#init">init</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-mini-client.html">mini-client</a><ul class='methods'><li data-type='method'><a href="module-mini-client.html#~createClient">createClient</a></li></ul></li><li><a href="module-register.html">register</a><ul class='methods'><li data-type='method'><a href="module-register.html#.registerFromServer">registerFromServer</a></li><li data-type='method'><a href="module-register.html#.registerLocal">registerLocal</a></li><li data-type='method'><a href="module-register.html#~computeGroup">computeGroup</a></li></ul></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Client.html">Client</a><ul class='methods'><li data-type='method'><a href="Client.html#init">init</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-mini-client.html">mini-client</a><ul class='methods'><li data-type='method'><a href="module-mini-client.html#~createClient">createClient</a></li></ul></li><li><a href="module-register.html">register</a><ul class='methods'><li data-type='method'><a href="module-register.html#.registerFromServer">registerFromServer</a></li><li data-type='method'><a href="module-register.html#.registerLocal">registerLocal</a></li></ul></li></ul>
 </nav>
 
 <div id="main">
@@ -43,13 +43,12 @@ const {registerFromServer, registerLocal} = require('./register')
 const reserved = ['then', 'catch', 'finally']
 
 class Client {
-
   /**
    * @summary Service version.
    * @description For remote clients, undefined until the first call. Then, set to server's version
    * @member {String}
    */
-  get version() {
+  get version () {
     return this.internalVersion
   }
 
@@ -77,7 +76,7 @@ class Client {
    * a Promise resolved with exposed APIs (an object with functions that returns promises)
    * @param {Object} [opts.groupOpts]     per-group configuration. might contain a properties named after group
    */
-  constructor(opts = {}) {
+  constructor (opts = {}) {
     this.initialized = false
     this.options = Object.assign({
       logger: getLogger({name: 'mini-client'})
@@ -98,22 +97,20 @@ class Client {
     }
 
     const traps = {
-      get(target, propKey) {
+      get (target, propKey) {
         // version and init are the only prop callable while proxy is still active
         if (['version', 'internalVersion', 'init', 'initialized', 'options'].includes(propKey)) {
           return target[propKey]
         }
         // reserved keyword that aren't defined must be undefined (thenable false-positive)
         if (reserved.includes(propKey)) {
-          /* eslint no-undefined: 0 */
           return undefined
         }
         // creates a function that will get exposed API from remote server
         return new Proxy(() => { /* esling no-empty: 0 */ }, {
-          get(_1, subPropKey) {
+          get (_1, subPropKey) {
             // reserved keyword that aren't defined must be undefined (thenable false-positive)
             if (reserved.includes(subPropKey)) {
-              /* eslint no-undefined: 0 */
               return undefined
             }
             return (...args) => {
@@ -135,7 +132,7 @@ class Client {
                 })
             }
           },
-          apply(_1, _2, args) {
+          apply (_1, _2, args) {
             logger.debug(`during ${propKey}, connect to ${remote} to get exposed apis`)
             return registerFromServer(target, remote, logger)
               .then(() => {
@@ -161,7 +158,7 @@ class Client {
    * `init()` async methods. But for remote clients, this is a noop, and can be skipped.
    * @returns {Promise} resolved when client is initialized, without any arguments
    */
-  init() {
+  init () {
     if (this.initialized || this.options.remote) return Promise.resolve()
     const {logger} = this.options
     return Promise.resolve()
