@@ -129,23 +129,6 @@ describe('local clients with an ordered list of groups', () => {
     done()
   })
 
-  it('should check that group init function returns a Promise', () =>
-    getClient({
-      name,
-      version,
-      groups: [{
-        name: 'test',
-        init: () => ({test: true})
-      }]
-    }).init()
-      .then(server => {
-        server.stop()
-        throw new Error('should have failed')
-      }, err => {
-        assert.ok(err instanceof Error)
-        assert(err.message.includes('didn\'t returned a promise'))
-      })
-  )
   it('should expose logger to groups', () => {
     const logs = []
     const logger = bunyan.createLogger({name: 'test'})

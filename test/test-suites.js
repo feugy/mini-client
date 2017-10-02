@@ -80,17 +80,6 @@ exports.declareTests = (it, context, withGroups = true) => {
 
 // Test when client is local
 exports.declareLocaleTests = (it, context, withGroups = true) => {
-  it('should handle not compliant APIs', () =>
-    invoke(context, 'notCompliant', withGroups)()
-      .then(res => {
-        assert.fail(res, '', 'unexpected result')
-      }, err => {
-        assert(err instanceof Error)
-        assert(err.message.includes('Error while calling API notCompliant:'))
-        assert(err.message.includes('.then is not a function'))
-      })
-  )
-
   it('should handle synchronously failing APIs', () =>
     invoke(context, 'errored', withGroups)()
       .then(res => {
@@ -99,6 +88,17 @@ exports.declareLocaleTests = (it, context, withGroups = true) => {
         assert(err instanceof Error)
         assert(err.message.includes('Error while calling API errored:'))
         assert(err.message.includes('errored API'))
+      })
+  )
+
+  it('should propagate Boom errors', () =>
+    invoke(context, 'boomError', withGroups)()
+      .then(() => {
+        throw new Error('should have failed')
+      }, (err) => {
+        assert(err.isBoom === true)
+        assert(err.output.statusCode === 401)
+        assert(err.message.includes('Custom authorization error'))
       })
   )
 }

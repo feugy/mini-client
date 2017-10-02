@@ -32,12 +32,22 @@ describe('remote client', () => {
       .then(utils.restoreLogger)
   )
 
-  it('shouldn\'t have version until init or first call ', done => {
+  it('shouldn\'t have version until init or first call', done => {
     assert.equal(context.client.version, 'unknown')
     done()
   })
 
   declareTests(it, context)
+
+  it('should fail if non checksum can be found', () =>
+    context.client.sample.noChecksum()
+      .then(res => {
+        assert.fail(res, '', 'unexpected result')
+      }, err => {
+        assert(err instanceof Error)
+        assert(err.message.includes('Couldn\'t find checksum'))
+      })
+  )
 
   describe('given a remote server change', () => {
     before(() =>

@@ -151,6 +151,7 @@ module.exports = [{
 
 ### 3.2.0
 - Support synchronous `init()` and API functions
+- API call fails with proper error it no checksum found
 - Dependencies update
 
 ### 3.1.0
