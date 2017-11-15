@@ -1,10 +1,6 @@
 extends:
   - standard
 
-globals:
-  process: true
-  globalConf: true
-
 env:
   es6: true
   node: true

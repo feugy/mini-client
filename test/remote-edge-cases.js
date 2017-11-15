@@ -51,7 +51,7 @@ describe('remote client without server', () => {
           }, err => {
             server.stop()
             assert(err instanceof Error)
-            assert(err.message.includes('ETIMEDOUT'))
+            assert(err.message.includes('TIMEDOUT'))
           })
       })
   )
