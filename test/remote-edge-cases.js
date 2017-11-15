@@ -40,6 +40,22 @@ describe('remote client without server', () => {
       })
   )
 
+  it('should configure HTTP timeout', () =>
+    startServer()
+      .then(server => {
+        remote = getClient(Object.assign({}, remote.options, {timeout: 1}))
+        return remote.sample.ping()
+          .then(res => {
+            server.stop()
+            assert.fail(res, '', 'unexpected result')
+          }, err => {
+            server.stop()
+            assert(err instanceof Error)
+            assert(err.message.includes('TIMEDOUT'))
+          })
+      })
+  )
+
   it('should not communicate with server until first call', () =>
     remote.init() // no communication until that point
       .then(() => startServer())

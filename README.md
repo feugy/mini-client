@@ -158,6 +158,9 @@ startServer({
 
 ## Changelog
 
+### 3.2.1
+- Allow http request timeout configuration
+
 ### 3.2.0
 - Support synchronous `init()` and API functions
 - API call fails with proper error it no checksum found
