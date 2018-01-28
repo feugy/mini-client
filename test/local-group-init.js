@@ -15,132 +15,130 @@ describe('local clients with an ordered list of groups', () => {
   const initOrder = []
   const ordered = Array.from({length: 3}).map((v, i) => ({
     name: `group-${i}`,
-    init: opts => new Promise((resolve, reject) => {
-      if (opts.fail) return reject(new Error(`group ${i} failed to initialize`))
+    init: async opts => {
+      if (opts.fail) throw new Error(`group ${i} failed to initialize`)
       initOrder.push(i)
       opts.logger.info(`from group ${i}`)
-      return resolve()
-    })
+    }
   }))
   const name = 'client'
   const version = '1.0.0'
 
-  beforeEach(done => {
+  beforeEach(() =>
     initOrder.splice(0, initOrder.length)
-    done()
+  )
+
+  it('should keep order when registering locally', async () => {
+    await getClient({name, version, groups: ordered}).init()
+    assert.deepEqual(initOrder, [0, 1, 2])
   })
 
-  it('should keep order when registering locally', () =>
-    getClient({name, version, groups: ordered}).init()
-      .then(() => assert.deepEqual(initOrder, [0, 1, 2]))
-  )
+  it('should stop initialisation at first error', async () => {
+    let res
+    try {
+      res = await getClient({
+        name,
+        version,
+        groups: ordered,
+        groupOpts: {
+          'group-1': {fail: true}
+        }
+      }).init()
+    } catch (err) {
+      assert(err instanceof Error)
+      assert(err.message.includes('group 1 failed to initialize'))
+      assert.deepEqual(initOrder, [0])
+      return
+    }
+    throw new Error(`unexpected result ${JSON.stringify(res, null, 2)}`)
+  })
 
-  it('should stop initialisation at first error', () =>
-    getClient({
-      name,
-      version,
-      groups: ordered,
-      groupOpts: {
-        'group-1': {fail: true}
-      }
-    }).init()
-      .then(res => {
-        assert.fail(res, '', 'unexpected result')
-      }, err => {
-        assert(err instanceof Error)
-        assert(err.message.includes('group 1 failed to initialize'))
-        assert.deepEqual(initOrder, [0])
-      })
-  )
-
-  it('should ignore groups that doesn\'t expose an object', () =>
+  it('should ignore groups that doesn\'t expose an object', async () =>
     getClient({
       name,
       version,
       groups: [{
         name: 'init-string',
-        init: () => Promise.resolve('initialized')
+        init: async () => 'initialized'
       }, {
         name: 'init-boolean',
-        init: () => Promise.resolve(true)
+        init: async () => true
       }, {
         name: 'init-array',
-        init: () => Promise.resolve([{worked: true}])
+        init: async () => [{worked: true}]
       }, {
         name: 'init-empty',
-        init: () => Promise.resolve(null)
+        init: async () => null
       }].concat(ordered)
     }).init()
   )
 
-  it('should enforce group name', () =>
-    getClient({
-      name,
-      version,
-      groups: [{
-        init: () => Promise.resolve('initialized')
-      }]
-    }).init()
-      .then(server => {
-        server.stop()
-        throw new Error('should have failed')
-      }, err => {
-        assert.ok(err instanceof Error)
-        assert(err.message.includes('"name" is required'))
-      })
-  )
+  it('should enforce group name', async () => {
+    try {
+      const server = await getClient({
+        name,
+        version,
+        groups: [{
+          init: async () => 'initialized'
+        }]
+      }).init()
+      await server.stop()
+    } catch (err) {
+      assert.ok(err instanceof Error)
+      assert(err.message.includes('"name" is required'))
+      return
+    }
+    throw new Error('should have failed')
+  })
 
-  it('should enforce group init function', () =>
-    getClient({
-      name,
-      version,
-      groups: [{
-        name: 'test'
-      }]
-    }).init()
-      .then(server => {
-        server.stop()
-        throw new Error('should have failed')
-      }, err => {
-        assert.ok(err instanceof Error)
-        assert(err.message.includes('"init" is required'))
-      })
-  )
+  it('should enforce group init function', async () => {
+    try {
+      const server = await getClient({
+        name,
+        version,
+        groups: [{
+          name: 'test'
+        }]
+      }).init()
+      await server.stop()
+    } catch (err) {
+      assert.ok(err instanceof Error)
+      assert(err.message.includes('"init" is required'))
+      return
+    }
+    throw new Error('should have failed')
+  })
 
-  it('should enforce client name', done => {
+  it('should enforce client name', () => {
     assert.throws(() => getClient({
       version,
       groups: [{
         name: 'group1',
-        init: () => Promise.resolve('initialized')
+        init: () => 'initialized'
       }]
     }), /"name" and "version" options/)
-    done()
   })
 
-  it('should enforce client version', done => {
+  it('should enforce client version', () => {
     assert.throws(() => getClient({
       name,
       groups: [{
         name: 'group1',
-        init: () => Promise.resolve('initialized')
+        init: () => 'initialized'
       }]
     }), /"name" and "version" options/)
-    done()
   })
 
-  it('should expose logger to groups', () => {
+  it('should expose logger to groups', async () => {
     const logs = []
     const logger = bunyan.createLogger({name: 'test'})
     logger.info = msg => logs.push(msg)
-    return getClient({
+    await getClient({
       name,
       version,
       logger,
       groups: ordered
     }).init()
-      .then(() => {
-        assert.deepEqual(logs, ['from group 0', 'from group 1', 'from group 2'])
-      })
+    assert.deepEqual(logs, ['from group 0', 'from group 1', 'from group 2'])
   })
 })

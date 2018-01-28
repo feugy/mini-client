@@ -1,9 +1,13 @@
-[![NPM Version][npm-image]][npm-url]
-[![Dependencies][david-image]][david-url]
-[![Build][travis-image]][travis-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
+# Mini-client
 
-# Minimalist µServices
+Simplistic µService library
+
+[![npm package][npm-badge]][npm-url]
+[![NSP Status][nsp-badge]][nsp-url]
+[![dependencies][david-badge]][david-url]
+[![build][travis-badge]][travis-url]
+[![coverage][coveralls-badge]][coveralls-url]
+[![License: MIT][license-badge]][license-url]
 
 Mini-client is a generic client for µServices built with [mini-service][mini-service-url].
 The goal of mini-service is to give the minimal structure to implement a µService, that can be invoked locally or remotely.
@@ -155,50 +159,21 @@ startServer({
 })
 ```
 
-
-## Changelog
-
-### 3.2.1
-- Allow http request timeout configuration
-
-### 3.2.0
-- Support synchronous `init()` and API functions
-- API call fails with proper error it no checksum found
-- Dependencies update
-
-### 3.1.0
-- Automatically reloads exposed APIs when remote server has changed, and mark previous APIs as deprecated
-- Use [standard.js](https://standardjs.com/) lint configuration
-- Don't fail if an API resolves or returns `undefined` value.
-
-### 3.0.0
-- [*Breaking change*] Groups are now used as sub-objects of client.
-- Use CRC32 checksum to validate that remote server is compatible
-- Dependencies update
-
-### 2.0.0
-- Introduce new terminology, with service descriptor and API groups
-- Allow to declare API without groups
-- Allow to declare API validation in group options
-- [*Breaking change*] Force name+version on local client
-- [*Breaking change*] When parsing exposed APIs, expect 'group' property instead of 'name'
-- Better documentation
-- More understandable error messages
-
-### 1.0.0
-- initial release
-
 [nearform]: http://nearform.com
 [feugy]: https://github.com/feugy
 [mini-service-url]: https://github.com/feugy/mini-service
-[david-image]: https://img.shields.io/david/feugy/mini-client.svg
+[david-badge]: https://img.shields.io/david/feugy/mini-client.svg
 [david-url]: https://david-dm.org/feugy/mini-client
-[npm-image]: https://img.shields.io/npm/v/mini-client.svg
+[npm-badge]: https://img.shields.io/npm/v/mini-client.svg
 [npm-url]: https://npmjs.org/package/mini-client
-[travis-image]: https://api.travis-ci.org/feugy/mini-client.svg
+[travis-badge]: https://api.travis-ci.org/feugy/mini-client.svg
 [travis-url]: https://travis-ci.org/feugy/mini-client
-[coveralls-image]: https://img.shields.io/coveralls/feugy/mini-client/master.svg
+[coveralls-badge]: https://img.shields.io/coveralls/feugy/mini-client/master.svg
 [coveralls-url]: https://coveralls.io/r/feugy/mini-client?branch=master
+[license-badge]: https://img.shields.io/badge/License-MIT-green.svg
+[license-url]: https://github.com/feugy/mini-service/blob/master/LICENSE
+[nsp-badge]: https://nodesecurity.io/orgs/perso/projects/b3cd58fb-8840-487b-92ef-d3ca097e51a2/badge
+[nsp-url]: https://nodesecurity.io/orgs/perso/projects/b3cd58fb-8840-487b-92ef-d3ca097e51a2
 [api-reference]: https://feugy.github.io/mini-client/
 [mini-service-url]: https://github.com/feugy/mini-service/
-[service-definition-url]: https://github.com/feugy/mini-service#example
+[service-definition-url]: https://github.com/feugy/mini-service?api#server:startServer
