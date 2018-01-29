@@ -1,0 +1,43 @@
+{
+  "src": [
+    "./lib/**/*.js",
+    "./*.md"
+  ],
+  "dest": "./docs",
+  "jsdoc": {
+    "allowUnknownTags": false,
+    "hierarchy": true,
+    "recurse": true,
+    "sort": "grouped"
+  },
+  "app": {
+    "title": "Mini-client documentation",
+    "base": "/mini-client",
+    "server": "github"
+  },
+  "template": {
+    "path": "default",
+    "outline": "flat",
+    "options": {
+      "title": "mini-client",
+      "navItems": [{
+        "iconClass": "glyphicon glyphicon-map-marker",
+        "label": "Welcome",
+        "href": "#?content=readme"
+      }, {
+        "iconClass": "glyphicon glyphicon-book",
+        "label": "API Reference",
+        "href": "#?api"
+      }, {
+        "iconClass": "glyphicon glyphicon-fire",
+        "label": "Changelog",
+        "href": "#?content=changelog"
+      }, {
+        "iconClass": "ico-md ico-github",
+        "label": "GitHub",
+        "href": "https://github.com/feugy/mini-client",
+        "target": "_blank"
+      }]
+    }
+  }
+}

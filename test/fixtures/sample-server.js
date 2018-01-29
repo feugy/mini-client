@@ -2,7 +2,7 @@ const {Server} = require('hapi')
 const Boom = require('boom')
 const Joi = require('joi')
 const crc32 = require('crc32')
-const {checksumHeader, getLogger, validateParams} = require('mini-service-utils')
+const {checksumHeader, getLogger, enrichError} = require('mini-service-utils')
 
 /**
  * Start Hapi Http server that comply with mini-service conventions
@@ -14,7 +14,7 @@ const {checksumHeader, getLogger, validateParams} = require('mini-service-utils'
  * @param {Object} [opts.groupOpts] - api configuration
  * @returns {Promise} promise - resolve with the Hapi server as parameter
  */
-module.exports = opts => {
+module.exports = async opts => {
   const options = Object.assign({
     port: 3000,
     logger: getLogger()
@@ -34,21 +34,27 @@ module.exports = opts => {
   const {port, logger, groupOpts} = options
   logger.debug({port}, 'Configure server')
 
-  const server = new Server()
-  server.connection({port})
+  const server = new Server({
+    port,
+    routes: {
+      validate: {
+        failAction: (r, h, err) => { throw err }
+      }
+    }
+  })
 
   server.route({
     method: 'GET',
     path: '/api/sample/ping',
     config: {validate: {}},
-    handler: (req, reply) => reply({time: new Date()}).header(checksumHeader, checksum)
+    handler: (req, h) => h.response({time: new Date()}).header(checksumHeader, checksum)
   })
 
   server.route({
     method: 'GET',
     path: '/api/sample-service/no-group',
     config: {validate: {}},
-    handler: (req, reply) => reply({time: new Date()}).header(checksumHeader, checksum)
+    handler: (req, h) => h.response({time: new Date()}).header(checksumHeader, checksum)
   })
 
   server.route({
@@ -56,12 +62,18 @@ module.exports = opts => {
     path: '/api/sample/greeting',
     config: {
       validate: {
-        payload: (values, validationOpts, done) =>
-          done(validateParams(values, Joi.object({name: Joi.string().required()}), 'greeting', 1))
+        payload: (values, validationOpts) => {
+          const schema = Joi.object({name: Joi.string().required()}).unknown(false)
+          const err = enrichError(schema.validate(values).error, 'greeting')
+          if (err) {
+            throw err
+          }
+          return values
+        }
       }
     },
-    handler: (req, reply) =>
-      reply(`Hello ${req.payload.name}${groupOpts.greetings || ''} !`)
+    handler: (req, h) =>
+      h.response(`Hello ${req.payload.name}${groupOpts.greetings || ''} !`)
         .header(checksumHeader, checksum)
   })
 
@@ -69,39 +81,40 @@ module.exports = opts => {
     method: 'GET',
     path: '/api/sample/failing',
     config: {validate: {}},
-    handler: (req, reply) => reply(Boom.create(599, 'something went really bad'))
+    handler: (req, h) => {
+      throw new Boom('something went really bad', {statusCode: 599})
+    }
   })
 
   server.route({
     method: 'GET',
     path: '/api/sample/get-undefined',
-    handler: (req, reply) => reply(undefined).header(checksumHeader, checksum)
+    handler: (req, h) => h.response(undefined).header(checksumHeader, checksum)
   })
 
   server.route({
     method: 'GET',
     path: '/api/sample/no-checksum',
     config: {validate: {}},
-    handler: (req, reply) => reply()
+    handler: () => null
   })
 
   server.route({
     method: 'GET',
     path: '/api/exposed',
-    handler: (req, reply) => reply({
+    handler: () => ({
       name: 'sample-service',
       version: '1.0.0',
       apis
     })
   })
 
-  return server.start()
-    .then(() => {
-      logger.info(server.info, 'server started')
-      return server
-    })
-    .catch(err => {
-      logger.error(err, 'failed to start server')
-      throw err
-    })
+  try {
+    await server.start()
+    logger.info(server.info, 'server started')
+    return server
+  } catch (err) {
+    logger.error(err, 'failed to start server')
+    throw err
+  }
 }

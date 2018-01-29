@@ -13,8 +13,8 @@ module.exports = (opts = {}) => {
      * @returns {Promise<Object>} resolved with an object containing:
      * @returns {Date} time - ping current time
      */
-    ping () {
-      return Promise.resolve({time: new Date()})
+    async ping () {
+      return {time: new Date()}
     },
 
     /**
@@ -22,16 +22,16 @@ module.exports = (opts = {}) => {
      * @param {String} name person to greet
      * @returns {Promise<String>} resolved with a greeting string message
      */
-    greeting (name) {
-      return Promise.resolve(`Hello ${name}${opts.greetings || ''} !`)
+    async greeting (name) {
+      return `Hello ${name}${opts.greetings || ''} !`
     },
 
     /**
      * Failing API to test rejection handling
      * @returns {Promise} always rejected
      */
-    failing () {
-      return Promise.reject(new Error('something went really bad'))
+    async failing () {
+      throw new Error('something went really bad')
     },
 
     /**
@@ -46,21 +46,21 @@ module.exports = (opts = {}) => {
      * API that returns undefined
      * @returns {Promise<undefined>} promise resolved with nothing
      */
-    getUndefined () {
-      return Promise.resolve(undefined)
+    async getUndefined () {
+      return undefined
     },
 
     /**
      * API that generates a 401 Boom error
      * @returns {Promise} rejected with Unauthorized Boom error with custom message
      */
-    boomError () {
-      return Promise.reject(unauthorized('Custom authorization error'))
+    async boomError () {
+      throw unauthorized('Custom authorization error')
     }
   }
 
   // adds input validation
   apis.greeting.validate = [Joi.string().required()]
 
-  return Promise.resolve(apis)
+  return apis
 }
