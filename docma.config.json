@@ -5,10 +5,9 @@
   ],
   "dest": "./docs",
   "jsdoc": {
-    "allowUnknownTags": false,
+    "allowUnknownTags": true,
     "hierarchy": true,
-    "recurse": true,
-    "sort": "grouped"
+    "recurse": true
   },
   "app": {
     "title": "Mini-client documentation",
@@ -17,21 +16,21 @@
   },
   "template": {
     "path": "default",
-    "outline": "flat",
     "options": {
       "title": "mini-client",
+      "outline": "tree",
       "navItems": [{
         "iconClass": "glyphicon glyphicon-map-marker",
         "label": "Welcome",
-        "href": "#?content=readme"
+        "href": "?content=readme"
       }, {
         "iconClass": "glyphicon glyphicon-book",
         "label": "API Reference",
-        "href": "#?api"
+        "href": "?api"
       }, {
         "iconClass": "glyphicon glyphicon-fire",
         "label": "Changelog",
-        "href": "#?content=changelog"
+        "href": "?content=changelog"
       }, {
         "iconClass": "ico-md ico-github",
         "label": "GitHub",
