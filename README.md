@@ -112,7 +112,12 @@ When Mini-client is running on local mode, such situation can never happen.
 Copyright [Damien Simonin Feugas][feugy] and other contributors, licensed under [MIT](./LICENSE).
 
 
-## 2.x to 3.x changes
+## 3.x to 4.x migration
+
+None: v4 is using async/await, which requires node@8+. Code is fully backward compatible.
+
+
+## 2.x to 3.x migration
 
 Groups are now used as sub-objects of mini-client.
 
@@ -136,7 +141,7 @@ client = {
 ```
 
 
-## 1.x to 2.x changes
+## 1.x to 2.x migration
 
 Local services, as remote services, **must** have `name` and `version` options defined
 

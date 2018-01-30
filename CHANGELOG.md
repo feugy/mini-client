@@ -1,9 +1,13 @@
 # Changelog
 
+## 4.0.0
+- Replace promise-based code with async/await equivalent
+
 ## 3.3.0
 - Replace internals to use latest validation mecanics
   Error message when invoking an API with too many parameters is slightly different.
   Previously: `must contain at most`, now: `"x" is not allowed`
+- Update docs template from docdash to docma
 - Dependencies update
 
 ## 3.2.1
