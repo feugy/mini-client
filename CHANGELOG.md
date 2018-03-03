@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.0
+- Fix parsing error on exposed API written as `async a => {}` (usage of mini-serivce-utils@3.0.0)
+- Added support of destructured parameters and rest parameters (previously was throwing errors)
+
 ## 4.0.0
 - Replace promise-based code with async/await equivalent
 
@@ -24,7 +28,7 @@
 - Don't fail if an API resolves or returns `undefined` value.
 
 ## 3.0.0
-- [*Breaking change*] Groups are now used as sub-objects of client.
+- **[Breaking Change]** Groups are now used as sub-objects of client.
 - Use CRC32 checksum to validate that remote server is compatible
 - Dependencies update
 
@@ -32,8 +36,8 @@
 - Introduce new terminology, with service descriptor and API groups
 - Allow to declare API without groups
 - Allow to declare API validation in group options
-- [*Breaking change*] Force name+version on local client
-- [*Breaking change*] When parsing exposed APIs, expect 'group' property instead of 'name'
+- **[Breaking Change]** Force name+version on local client
+- **[Breaking Change]** When parsing exposed APIs, expect 'group' property instead of 'name'
 - Better documentation
 - More understandable error messages
 

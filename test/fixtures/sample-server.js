@@ -26,7 +26,8 @@ module.exports = async opts => {
     {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
     {group: 'sample', id: 'failing', params: [], path: '/api/sample/failing'},
     {group: 'sample', id: 'getUndefined', params: [], path: '/api/sample/get-undefined'},
-    {group: 'sample', id: 'noChecksum', params: [], path: '/api/sample/no-checksum'}
+    {group: 'sample', id: 'noChecksum', params: [], path: '/api/sample/no-checksum'},
+    {group: 'sample', id: 'withExoticParameters', params: ['param1', 'param2', 'other'], path: '/api/sample/with-exotic-parameters'}
   ]
 
   const checksum = crc32(JSON.stringify(apis))
@@ -90,6 +91,15 @@ module.exports = async opts => {
     method: 'GET',
     path: '/api/sample/get-undefined',
     handler: (req, h) => h.response(undefined).header(checksumHeader, checksum)
+  })
+
+  server.route({
+    method: 'POST',
+    path: '/api/sample/with-exotic-parameters',
+    handler: ({payload: {param1: [a, b], param2: {c: {d}}, other, ...rest}}, h) => {
+      return h.response([a, b, d, other, ...Object.keys(rest).map(k => rest[k])])
+        .header(checksumHeader, checksum)
+    }
   })
 
   server.route({

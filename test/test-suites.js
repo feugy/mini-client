@@ -12,16 +12,16 @@ exports.declareTests = (it, context, withGroups = true) => {
   it('should respond to ping', async () => {
     const result = await invoke(context, 'ping', withGroups)()
     assert(moment(result.time).isValid())
-    assert.equal(typeof result.time, 'string')
+    assert(typeof result.time === 'string')
   })
 
   it('should expose service\'s version', () => {
-    assert.equal(context.client.version, 'sample-service@1.0.0')
+    assert(context.client.version === 'sample-service@1.0.0')
   })
 
   it('should greets people', async () => {
     const result = await invoke(context, 'greeting', withGroups)('Jane')
-    assert.equal(result, 'Hello Jane nice to meet you !')
+    assert(result === 'Hello Jane nice to meet you !')
   })
 
   it('should handle API errors', async () => {
@@ -76,6 +76,11 @@ exports.declareTests = (it, context, withGroups = true) => {
   it('should handle undefined result', async () => {
     const res = await invoke(context, 'getUndefined', withGroups)()
     assert(res === undefined)
+  })
+
+  it('should handle API with exotic parameters', async () => {
+    const res = await invoke(context, 'withExoticParameters', withGroups)([1, 2], {c: {d: 3}}, 4, 5, 6)
+    assert.deepStrictEqual(res, [1, 2, 3, 4, 5, 6])
   })
 }
 

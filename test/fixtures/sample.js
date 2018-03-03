@@ -10,8 +10,8 @@ module.exports = (opts = {}) => {
   const apis = {
     /**
      * Respond to ping
-     * @returns {Promise<Object>} resolved with an object containing:
-     * @returns {Date} time - ping current time
+     * @async
+     * @returns {Object} an object containing `time` property with current time
      */
     async ping () {
       return {time: new Date()}
@@ -19,16 +19,18 @@ module.exports = (opts = {}) => {
 
     /**
      * Kindly say hello, and demonstrate how to validate input parameters
+     * @async
      * @param {String} name person to greet
-     * @returns {Promise<String>} resolved with a greeting string message
+     * @returns {String} a greeting string message
      */
-    async greeting (name) {
+    async greeting (name = 'John') {
       return `Hello ${name}${opts.greetings || ''} !`
     },
 
     /**
      * Failing API to test rejection handling
-     * @returns {Promise} always rejected
+     * @async
+     * @throws always an error
      */
     async failing () {
       throw new Error('something went really bad')
@@ -44,7 +46,7 @@ module.exports = (opts = {}) => {
 
     /**
      * API that returns undefined
-     * @returns {Promise<undefined>} promise resolved with nothing
+     * @async
      */
     async getUndefined () {
       return undefined
@@ -52,10 +54,26 @@ module.exports = (opts = {}) => {
 
     /**
      * API that generates a 401 Boom error
-     * @returns {Promise} rejected with Unauthorized Boom error with custom message
+     * @async
+     * @throws always an Unauthorized Boom error with custom message
      */
     async boomError () {
       throw unauthorized('Custom authorization error')
+    },
+
+    /**
+     * API with exotic signature including
+     * - destructured parameters
+     * - default values
+     * - rest parameters
+     * @async
+     * @param {Array} param1  - array of anything
+     * @param {Object} param2 - object that could contain a property named c
+     * @param {Any} other     - array of other parameters
+     * @returns {Array} array of effective parameters
+     */
+    async withExoticParameters ([a, b], {c: {d}} = {}, ...other) {
+      return [a, b, d, ...other]
     }
   }
 

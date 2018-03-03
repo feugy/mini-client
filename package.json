@@ -1,6 +1,6 @@
 {
   "name": "mini-client",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Mini client for mini services: Micro services done simply",
   "author": "feugy <damien.feugas@gmail.com>",
   "license": "MIT",
@@ -24,7 +24,7 @@
     "bunyan": "~2.0.2",
     "crc32": "~0.2.2",
     "joi": "~13.1.1",
-    "mini-service-utils": "~2.4.0",
+    "mini-service-utils": "~3.0.1",
     "request": "~2.83.0",
     "request-promise-native": "~1.0.5"
   },
