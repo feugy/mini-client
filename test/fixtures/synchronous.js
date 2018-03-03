@@ -19,7 +19,6 @@ module.exports = (opts = {}) => {
 
     /**
      * API that returns undefined
-     * @returns {void} always undefined
      */
     getUndefined () {
       return undefined
@@ -31,6 +30,20 @@ module.exports = (opts = {}) => {
      */
     boomError () {
       throw unauthorized('Custom authorization error')
+    },
+
+    /**
+     * API with exotic signature including
+     * - destructured parameters
+     * - default values
+     * - rest parameters
+     * @param {Array} param1  - array of anything
+     * @param {Object} param2 - object that could contain a property named c
+     * @param {Any} other     - array of other parameters
+     * @returns {Array} array of effective parameters
+     */
+    withExoticParameters ([a, b], {c: {d}} = {}, ...other) {
+      return [a, b, d, ...other]
     }
   }
 
