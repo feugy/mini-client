@@ -1,12 +1,41 @@
 const Joi = require('joi')
-const {unauthorized} = require('boom')
+const { unauthorized } = require('boom')
+
+/**
+ * List of exposed APIs
+ */
+exports.exposed = [{
+  group: 'synchronous',
+  id: 'greeting',
+  params: ['name'],
+  hasBufferInput: false,
+  hasStreamInput: false
+}, {
+  group: 'synchronous',
+  id: 'getUndefined',
+  params: [],
+  hasBufferInput: false,
+  hasStreamInput: false
+}, {
+  group: 'synchronous',
+  id: 'boomError',
+  params: [],
+  hasBufferInput: false,
+  hasStreamInput: false
+}, {
+  group: 'synchronous',
+  id: 'withExoticParameters',
+  params: ['param1', 'param2', 'other'],
+  hasBufferInput: false,
+  hasStreamInput: false
+}]
 
 /**
  * Initialize service and returns an object containing APIs functions
  * @param {Object} opts service opts
  * @returns {Object} containing exposed APIs
  */
-module.exports = (opts = {}) => {
+exports.init = (opts = {}) => {
   const apis = {
     /**
      * Kindly say hello, and demonstrate how to validate input parameters
@@ -42,7 +71,7 @@ module.exports = (opts = {}) => {
      * @param {Any} other     - array of other parameters
      * @returns {Array} array of effective parameters
      */
-    withExoticParameters ([a, b], {c: {d}} = {}, ...other) {
+    withExoticParameters ([a, b], { c: { d } } = {}, ...other) {
       return [a, b, d, ...other]
     }
   }
