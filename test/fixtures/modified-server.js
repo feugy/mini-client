@@ -1,7 +1,7 @@
-const {Server} = require('hapi')
+const { Server } = require('hapi')
 const Joi = require('joi')
 const crc32 = require('crc32')
-const {checksumHeader, getLogger, enrichError} = require('mini-service-utils')
+const { checksumHeader, getLogger, enrichError } = require('mini-service-utils')
 
 /**
  * Start Hapi Http server that comply with mini-service conventions
@@ -20,15 +20,15 @@ module.exports = async opts => {
   }, opts)
 
   const apis = [
-    {group: 'modified', id: 'ping', params: [], path: '/api/modified/ping'},
-    {group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting'},
-    {group: 'sample', id: 'getUndefined', params: [], path: '/api/sample/get-undefined'}
+    { group: 'modified', id: 'ping', params: [], path: '/api/modified/ping' },
+    { group: 'sample', id: 'greeting', params: ['name'], path: '/api/sample/greeting' },
+    { group: 'sample', id: 'getUndefined', params: [], path: '/api/sample/get-undefined' }
   ]
 
   const checksum = crc32(JSON.stringify(apis))
 
-  const {port, logger} = options
-  logger.debug({port}, 'Configure server')
+  const { port, logger } = options
+  logger.debug({ port }, 'Configure server')
 
   const server = new Server({
     port,
@@ -42,8 +42,8 @@ module.exports = async opts => {
   server.route({
     method: 'GET',
     path: '/api/modified/ping',
-    config: {validate: {}},
-    handler: (req, h) => h.response({time: new Date()}).header(checksumHeader, checksum)
+    config: { validate: {} },
+    handler: (req, h) => h.response({ time: new Date() }).header(checksumHeader, checksum)
   })
 
   server.route({
@@ -52,7 +52,7 @@ module.exports = async opts => {
     config: {
       validate: {
         payload: (values, validationOpts) => {
-          const schema = Joi.object({name: Joi.string().required()}).unknown(false)
+          const schema = Joi.object({ name: Joi.string().required() }).unknown(false)
           const err = enrichError(schema.validate(values).error, 'greeting')
           if (err) {
             throw err
